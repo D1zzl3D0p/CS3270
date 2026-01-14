@@ -2,6 +2,7 @@ import pandas as pd
 import os
 import pathlib
 import kagglehub
+import pydoc
 
 
 def download_csv(dataset: str) -> str:
@@ -34,3 +35,4 @@ if __name__ == "__main__":
     data = read_csvs(path)
     print(data.keys())
     print(data)
+    pydoc.writedoc("script")
