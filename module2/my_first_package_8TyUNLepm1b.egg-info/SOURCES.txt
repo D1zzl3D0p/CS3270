@@ -1,0 +1,10 @@
+LICENSE
+README.md
+setup.py
+my_first_package_8TyUNLepm1b/__init__.py
+my_first_package_8TyUNLepm1b/script.py
+my_first_package_8TyUNLepm1b.egg-info/PKG-INFO
+my_first_package_8TyUNLepm1b.egg-info/SOURCES.txt
+my_first_package_8TyUNLepm1b.egg-info/dependency_links.txt
+my_first_package_8TyUNLepm1b.egg-info/requires.txt
+my_first_package_8TyUNLepm1b.egg-info/top_level.txt
