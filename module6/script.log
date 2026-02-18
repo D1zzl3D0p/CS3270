@@ -63,3 +63,12 @@
 2026-02-17 22:26:21,881 - INFO - Transforming data records
 2026-02-17 22:26:21,885 - INFO - Generating visualization: weather_analysis.png
 2026-02-17 22:26:22,065 - INFO - Visualization saved to weather_analysis.png
+2026-02-17 22:28:36,521 - INFO - Downloading dataset: sandhyapalaniappan/rainfall-prediction-dataset-cleaned-weatheraus
+2026-02-17 22:28:36,840 - INFO - Dataset location: /Users/dizzler/.cache/kagglehub/datasets/sandhyapalaniappan/rainfall-prediction-dataset-cleaned-weatheraus/versions/1
+2026-02-17 22:28:36,841 - INFO - Loading: weatherAUS_rainfall_prediction_dataset_cleaned.csv
+2026-02-17 22:28:37,423 - INFO - Processing 145460 initial records
+2026-02-17 22:28:37,423 - INFO - Filtering data for location: Cairns
+2026-02-17 22:28:37,443 - INFO - Filtered to 684 interesting records
+2026-02-17 22:28:37,443 - INFO - Transforming data records
+2026-02-17 22:28:37,448 - INFO - Generating visualization: weather_analysis.png
+2026-02-17 22:28:37,617 - INFO - Visualization saved to weather_analysis.png
