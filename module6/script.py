@@ -1,25 +1,11 @@
 """
-Kaggle Dataset Profiler
+Weather Data Analyzer
 
-This script was developed with the assistance of AI (opencode/kimi-k2.5-free).
-An AI assistant helped implement features including:
-- Logging infrastructure with configurable levels
-- Command-line argument parsing
-- Iterator and generator patterns for CSV file processing
-- Iterator protocol for row-wise data analysis
-- Comprehensive test suite using pytest
-- Doctest examples for documentation and testing
+This script analyzes Australian weather data.
 
-Examples:
-    >>> # Test parse_args with empty list returns INFO level
-    >>> args = parse_args([])
-    >>> args.log_level
-    'INFO'
-
-    >>> # Test parse_args with DEBUG flag
-    >>> args = parse_args(['-l', 'DEBUG'])
-    >>> args.log_level
-    'DEBUG'
+AI Assistance:
+- Initial development: google/gemini-2.0-flash-exp (gemini-3-flash)
+- Refactoring and enhancements: opencode (minimax-m2.5-free)
 """
 
 import pandas as pd
@@ -27,7 +13,9 @@ import pathlib
 import logging
 import argparse
 import sys
-from typing import Optional, Generator
+import seaborn as sns
+import matplotlib.pyplot as plt
+from typing import Optional, List, Dict, Any
 
 
 logger = logging.getLogger(__name__)
@@ -47,27 +35,7 @@ def parse_args(args: Optional[list] = None):
 
 
 def setup_logging(level_name: str, log_file: str = "script.log"):
-    """Configure root logger with the specified level.
-
-    Args:
-        level_name: Logging level as string (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-        log_file: Path to log file (default: "script.log")
-
-    Examples:
-        >>> import logging
-        >>> import tempfile
-        >>> import os
-        >>> # Setup logging with DEBUG level
-        >>> with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.log') as f:
-        ...     log_path = f.name
-        >>> setup_logging("DEBUG", log_path)
-        >>> logger = logging.getLogger()
-        >>> logger.level == logging.DEBUG
-        True
-        >>> # Cleanup
-        >>> import os
-        >>> os.remove(log_path)
-    """
+    """Configure root logger with the specified level."""
     level = getattr(logging, level_name)
     logging.basicConfig(
         level=level,
@@ -77,324 +45,143 @@ def setup_logging(level_name: str, log_file: str = "script.log"):
     )
 
 
-class KaggleDataManager:
-    """
-    Handles downloading and loading of Kaggle datasets.
+def get_dataset_path(dataset_slug: str) -> str:
+    """Download or retrieve the dataset path using kagglehub."""
+    import kagglehub
 
-    This class can work with or without actual Kaggle downloads.
-    For testing, you can set download_path directly to bypass kagglehub.
-
-    Examples:
-        >>> # Create a manager without auto-download
-        >>> manager = KaggleDataManager("test/slug", auto_download=False)
-        >>> manager.dataset_slug
-        'test/slug'
-        >>> manager.download_path
-        ''
-
-        >>> # Test with mocked download function
-        >>> mock_download = lambda x: "/fake/path"
-        >>> manager = KaggleDataManager("test/slug", auto_download=True, download_func=mock_download)
-        >>> manager.download_path
-        '/fake/path'
-    """
-
-    def __init__(
-        self, dataset_slug: str, auto_download: bool = True, download_func=None
-    ):
-        self.dataset_slug = dataset_slug
-        self.download_path: str = ""
-        self._download_func = download_func
-        if auto_download:
-            self.download()
-
-    def download(self) -> str:
-        """
-        Downloads the dataset using kagglehub, returns path.
-        Can be bypassed by setting download_path directly for testing.
-        """
-        if not self.download_path:
-            if self._download_func:
-                # Use injected function (for testing)
-                self.download_path = self._download_func(self.dataset_slug)
-            else:
-                # Import here to allow testing without kagglehub installed
-                import kagglehub
-
-                logger.info(f"Downloading dataset: {self.dataset_slug}")
-                self.download_path = kagglehub.dataset_download(self.dataset_slug)
-                logger.info(f"Dataset downloaded to: {self.download_path}")
-        else:
-            logger.debug("Dataset already downloaded, using cached path")
-        return self.download_path
-
-    def get_csv_file(self, index: int = 0) -> pd.DataFrame:
-        """
-        Helper to find .csv in dir.
-        Defaults to index=0 (The FIRST file found).
-
-        Args:
-            index: Index of CSV file to load (default: 0)
-
-        Returns:
-            DataFrame containing the CSV data, or empty DataFrame if not found
-
-        Examples:
-            >>> import tempfile
-            >>> import pandas as pd
-            >>> from pathlib import Path
-            >>> # Create test CSV file
-            >>> with tempfile.TemporaryDirectory() as tmpdir:
-            ...     csv_path = Path(tmpdir) / "data.csv"
-            ...     df = pd.DataFrame({"col": [1, 2, 3]})
-            ...     df.to_csv(csv_path, index=False)
-            ...     manager = KaggleDataManager("test", auto_download=False)
-            ...     manager.download_path = tmpdir
-            ...     result = manager.get_csv_file(0)
-            ...     len(result)
-            3
-            >>> # Verify column data
-            >>> with tempfile.TemporaryDirectory() as tmpdir:
-            ...     csv_path = Path(tmpdir) / "data.csv"
-            ...     df = pd.DataFrame({"col": [1, 2, 3]})
-            ...     df.to_csv(csv_path, index=False)
-            ...     manager = KaggleDataManager("test", auto_download=False)
-            ...     manager.download_path = tmpdir
-            ...     result = manager.get_csv_file(0)
-            ...     list(result['col'])
-            [1, 2, 3]
-        """
-        if not self.download_path:
-            logger.error("Download path not set. Call download() first.")
-            return pd.DataFrame()
-
-        search_path = pathlib.Path(self.download_path)
-        csv_files = sorted(search_path.rglob("*.csv"))
-
-        logger.debug(f"Found {len(csv_files)} CSV files: {[f.name for f in csv_files]}")
-
-        if len(csv_files) <= index:
-            logger.error(
-                f"Requested file index {index} (file #{index + 1}), but only {len(csv_files)} files exist."
-            )
-            return pd.DataFrame()
-
-        target_file = csv_files[index]
-        logger.info(f"Loading CSV file: {target_file.name}")
-        return pd.read_csv(target_file)
-
-    def __iter__(self):
-        """Iterator protocol: yields each CSV file in the dataset."""
-        return self.iter_csv_files()
-
-    def iter_csv_files(self) -> Generator[pd.DataFrame, None, None]:
-        """Generator that yields DataFrames from all CSV files lazily."""
-        if not self.download_path:
-            logger.error("Download path not set. Call download() first.")
-            return
-
-        search_path = pathlib.Path(self.download_path)
-        csv_files = sorted(search_path.rglob("*.csv"))
-
-        logger.info(f"Starting iteration over {len(csv_files)} CSV files")
-
-        for i, csv_file in enumerate(csv_files):
-            logger.debug(f"Yielding CSV file {i + 1}/{len(csv_files)}: {csv_file.name}")
-            yield pd.read_csv(csv_file)
+    logger.info(f"Downloading dataset: {dataset_slug}")
+    path = kagglehub.dataset_download(dataset_slug)
+    logger.info(f"Dataset location: {path}")
+    return path
 
 
-class DataProfiler:
-    """
-    Handles data analysis and profiling.
+def load_csv_data(base_path: str, index: int = 0) -> pd.DataFrame:
+    """Find and load a CSV file from the given path."""
+    search_path = pathlib.Path(base_path)
+    csv_files = sorted(search_path.rglob("*.csv"))
 
-    Examples:
-        >>> import pandas as pd
-        >>> # Create profiler with sample data
-        >>> df = pd.DataFrame({"nums": [1, 2, 3, 4, 5]})
-        >>> profiler = DataProfiler(df)
-        >>> # Test string representation
-        >>> "Extended Data Profile" in str(profiler)
-        True
-        >>> # Test row iteration
-        >>> rows = list(profiler)
-        >>> len(rows)
-        5
-        >>> rows[0]
-        {'nums': 1}
-    """
+    if not csv_files or len(csv_files) <= index:
+        logger.error(f"CSV file at index {index} not found in {base_path}")
+        return pd.DataFrame()
 
-    def __init__(self, df: pd.DataFrame):
-        self.df = df
-        self._index = 0
-
-    def __str__(self) -> str:
-        """Returns an extended stats version of self.
-
-        Returns:
-            String representation of the data profile
-
-        Examples:
-            >>> import pandas as pd
-            >>> # Test with data
-            >>> df = pd.DataFrame({"nums": [1, 2, 3, 4, 5]})
-            >>> profiler = DataProfiler(df)
-            >>> text = str(profiler)
-            >>> "Extended Data Profile" in text
-            True
-            >>> # Test with empty DataFrame
-            >>> empty = DataProfiler(pd.DataFrame())
-            >>> str(empty)
-            'No Data to Profile'
-        """
-        if self.df.empty:
-            return "No Data to Profile"
-
-        stats = self.fav_stats()
-        return f"\n--- Extended Data Profile ---\n{stats}"
-
-    def __iter__(self):
-        """Make DataProfiler iterable - returns self as iterator."""
-        self._index = 0
-        return self
-
-    def __next__(self):
-        """Return the next row as a dictionary."""
-        if self.df.empty or self._index >= len(self.df):
-            raise StopIteration
-
-        row = self.df.iloc[self._index].to_dict()
-        self._index += 1
-        return row
-
-    def fav_stats(self) -> pd.DataFrame:
-        """
-        Calculates favorite statistics including median, mode, and range.
-
-        Returns:
-            DataFrame with statistics (count, mean, std, min, 25%, 50%, 75%, max,
-            plus custom stats: median, mode, range)
-
-        Examples:
-            >>> import pandas as pd
-            >>> import numpy as np
-            >>> # Test with simple numeric data
-            >>> df = pd.DataFrame({"nums": [1, 2, 3, 4, 5]})
-            >>> profiler = DataProfiler(df)
-            >>> stats = profiler.fav_stats()
-            >>> "median" in stats.index
-            True
-            >>> "mode" in stats.index
-            True
-            >>> "range" in stats.index
-            True
-            >>> float(stats.loc["median", "nums"])
-            3.0
-            >>> float(stats.loc["range", "nums"])
-            4.0
-            >>> # Test empty DataFrame
-            >>> empty_profiler = DataProfiler(pd.DataFrame())
-            >>> empty_profiler.fav_stats().empty
-            True
-            >>> # Test with no numeric columns
-            >>> str_profiler = DataProfiler(pd.DataFrame({"text": ["a", "b", "c"]}))
-            >>> str_profiler.fav_stats().empty
-            True
-        """
-        if self.df.empty:
-            logger.warning("DataFrame is empty, cannot calculate statistics")
-            return pd.DataFrame()
-
-        logger.debug(f"Calculating statistics for {len(self.df)} rows")
-
-        # Only run stats on numeric columns to avoid errors
-        numeric_df = self.df.select_dtypes(include=["number"])
-
-        if numeric_df.empty:
-            logger.warning("No numeric columns found for statistics")
-            return pd.DataFrame()
-
-        desc = numeric_df.describe()
-
-        median = numeric_df.median()
-        # Mode can return multiple rows, take the first
-        mode = numeric_df.mode()
-        if not mode.empty:
-            mode = mode.iloc[0]
-        range_val = numeric_df.max() - numeric_df.min()
-
-        extra_stats = pd.DataFrame(
-            {"median": median, "mode": mode, "range": range_val}
-        ).T
-
-        full_stats = pd.concat([desc, extra_stats])
-        return full_stats
+    target_file = csv_files[index]
+    logger.info(f"Loading: {target_file.name}")
+    return pd.read_csv(target_file)
 
 
-def run_doctests(verbose: bool = False) -> int:
-    """Run doctests for the module.
-
-    Args:
-        verbose: If True, print detailed test output
-
-    Returns:
-        Number of test failures
-    """
-    import doctest
-    import sys
-
-    # Suppress logging during doctests
-    logging.disable(logging.CRITICAL)
-
-    # Run doctests
-    result = doctest.testmod(
-        verbose=verbose, optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE
+def _is_interesting_record(record: Dict[str, Any], location: str) -> bool:
+    """Check if a record is interesting based on location and weather conditions."""
+    return str(record.get("Location")).lower() == location.lower() and (
+        float(record.get("Rainfall", 0)) > 5.0
+        or float(record.get("Humidity3pm", 0)) > 80.0
     )
 
-    # Re-enable logging
-    logging.disable(logging.NOTSET)
 
-    if result.failed == 0:
-        print(f"All {result.attempted} doctests passed!")
-    else:
-        print(f"{result.failed} of {result.attempted} doctests failed.")
+def filter_interesting_data(
+    data: List[Dict[str, Any]], location: str = "Cairns"
+) -> List[Dict[str, Any]]:
+    """
+    Filter data to find 'interesting' observations.
+    Criteria: Specific location AND significant rainfall or high humidity.
+    """
+    logger.info(f"Filtering data for location: {location}")
+    return [r for r in data if _is_interesting_record(r, location)]
 
-    return result.failed
+
+def _compute_comfort(record: Dict[str, Any]) -> Dict[str, Any]:
+    """Compute derived fields for a weather record."""
+    return {
+        **record,
+        "TempRange": float(record.get("MaxTemp", 0)) - float(record.get("MinTemp", 0)),
+        "ComfortScore": 100
+        - abs(float(record.get("Humidity3pm", 50)) - 50)
+        - abs(float(record.get("Temp3pm", 22)) - 22),
+    }
+
+
+def transform_data(data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Transform data by adding computed fields.
+    Calculates temperature range and a simplified 'Comfort Score'.
+    """
+    logger.info("Transforming data records")
+    return [_compute_comfort(r) for r in data]
+
+
+def visualize_weather(df: pd.DataFrame, output_file: str = "weather_analysis.png"):
+    """Visualize the analyzed weather data using Seaborn."""
+    if df.empty:
+        logger.warning("No data to visualize")
+        return
+
+    logger.info(f"Generating visualization: {output_file}")
+
+    sns.set_theme(style="whitegrid")
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
+
+    sns.scatterplot(
+        data=df, x="Humidity3pm", y="Rainfall", hue="RainToday", alpha=0.6, ax=ax1
+    )
+    ax1.set_title("Humidity at 3pm vs Rainfall")
+
+    sns.boxplot(
+        data=df,
+        x="RainTomorrow",
+        y="TempRange",
+        hue="RainTomorrow",
+        palette="Set2",
+        ax=ax2,
+        legend=False,
+    )
+    ax2.set_title("Daily Temperature Range vs Rain Tomorrow")
+
+    plt.tight_layout()
+    plt.savefig(output_file)
+    logger.info(f"Visualization saved to {output_file}")
 
 
 def main():
-    """Main entry point for the script."""
-    # Check for doctest mode
-    if len(sys.argv) > 1 and sys.argv[1] == "--doctest":
-        verbose = "-v" in sys.argv or "--verbose" in sys.argv
-        failures = run_doctests(verbose=verbose)
-        sys.exit(0 if failures == 0 else 1)
-
-    # Parse command-line arguments first
     args = parse_args()
     setup_logging(args.log_level)
 
-    # Configuration
     dataset_name = "sandhyapalaniappan/rainfall-prediction-dataset-cleaned-weatheraus"
 
-    logger.info("Starting data processing pipeline")
+    try:
+        path = get_dataset_path(dataset_name)
+        df_raw = load_csv_data(path)
 
-    # 1. Initialize the Data Manager (automatically downloads)
-    logger.debug("Initializing KaggleDataManager")
-    manager = KaggleDataManager(dataset_name)
+        if df_raw.empty:
+            return
 
-    # 2. Get the CSV
-    df = manager.get_csv_file(index=0)
+        records = df_raw.to_dict("records")
+        logger.info(f"Processing {len(records)} initial records")
 
-    # 3. Analyze Data
-    if not df.empty:
-        logger.info(
-            f"Data loaded successfully: {df.shape[0]} rows, {df.shape[1]} columns"
-        )
-        profiler = DataProfiler(df)
-        print(profiler)
-        logger.info("Data profiling completed successfully")
-    else:
-        logger.warning("No data available for profiling")
+        filtered_records = filter_interesting_data(records, location="Cairns")
+        logger.info(f"Filtered to {len(filtered_records)} interesting records")
+
+        processed_records = transform_data(filtered_records)
+
+        df_final = pd.DataFrame(processed_records)
+
+        print("\n--- Weather Analysis Summary (Cairns) ---")
+        print(f"Total interesting days found: {len(df_final)}")
+        if not df_final.empty:
+            avg_temp_range = sum(r["TempRange"] for r in processed_records) / len(
+                processed_records
+            )
+            print(f"Average Temperature Range: {avg_temp_range:.2f}°C")
+            print(
+                df_final[
+                    ["Date", "Location", "Rainfall", "TempRange", "ComfortScore"]
+                ].head()
+            )
+
+            visualize_weather(df_final)
+
+    except Exception as e:
+        logger.exception(f"An error occurred: {e}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

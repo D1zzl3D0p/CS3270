@@ -16,3 +16,50 @@
 2026-02-10 20:27:13,653 - INFO - Loading CSV file: weatherAUS_rainfall_prediction_dataset_cleaned.csv
 2026-02-10 20:27:13,761 - INFO - Data loaded successfully: 145460 rows, 23 columns
 2026-02-10 20:27:13,822 - INFO - Data profiling completed successfully
+2026-02-17 21:47:43,740 - INFO - Downloading dataset: sandhyapalaniappan/rainfall-prediction-dataset-cleaned-weatheraus
+2026-02-17 21:47:44,460 - INFO - Dataset location: /Users/dizzler/.cache/kagglehub/datasets/sandhyapalaniappan/rainfall-prediction-dataset-cleaned-weatheraus/versions/1
+2026-02-17 21:47:44,461 - INFO - Loading: weatherAUS_rainfall_prediction_dataset_cleaned.csv
+2026-02-17 21:47:45,359 - INFO - Processing 145460 initial records
+2026-02-17 21:47:45,359 - INFO - Filtering data for location: Cairns
+2026-02-17 21:47:45,380 - INFO - Filtered to 684 interesting records
+2026-02-17 21:47:45,380 - INFO - Transforming data records
+2026-02-17 21:47:45,388 - INFO - Generating visualization: weather_analysis.png
+2026-02-17 21:47:46,244 - INFO - Visualization saved to weather_analysis.png
+2026-02-17 21:47:54,313 - INFO - Processing 1 initial records
+2026-02-17 21:47:54,314 - INFO - Filtering data for location: Cairns
+2026-02-17 21:47:54,314 - INFO - Filtered to 1 interesting records
+2026-02-17 21:47:54,314 - INFO - Transforming data records
+2026-02-17 21:47:54,374 - ERROR - CSV file at index 0 not found in /private/var/folders/zk/2_2l_1gx6613d2ks_ypk8jsw0000gn/T/pytest-of-dizzler/pytest-0/test_load_csv_data_empty0
+2026-02-17 21:48:26,544 - INFO - Processing 1 initial records
+2026-02-17 21:48:26,544 - INFO - Filtering data for location: Cairns
+2026-02-17 21:48:26,544 - INFO - Filtered to 1 interesting records
+2026-02-17 21:48:26,544 - INFO - Transforming data records
+2026-02-17 21:48:26,553 - ERROR - CSV file at index 0 not found in /private/var/folders/zk/2_2l_1gx6613d2ks_ypk8jsw0000gn/T/pytest-of-dizzler/pytest-1/test_load_csv_data_empty0
+2026-02-17 22:22:33,979 - INFO - Downloading dataset: sandhyapalaniappan/rainfall-prediction-dataset-cleaned-weatheraus
+2026-02-17 22:22:34,408 - INFO - Dataset location: /Users/dizzler/.cache/kagglehub/datasets/sandhyapalaniappan/rainfall-prediction-dataset-cleaned-weatheraus/versions/1
+2026-02-17 22:22:34,410 - INFO - Loading: weatherAUS_rainfall_prediction_dataset_cleaned.csv
+2026-02-17 22:22:35,026 - INFO - Processing 145460 initial records
+2026-02-17 22:22:35,027 - INFO - Filtering data for location: Cairns
+2026-02-17 22:22:35,044 - INFO - Filtered to 684 interesting records
+2026-02-17 22:22:35,045 - INFO - Transforming data records
+2026-02-17 22:22:35,051 - INFO - Generating visualization: weather_analysis.png
+2026-02-17 22:22:35,281 - INFO - Visualization saved to weather_analysis.png
+2026-02-17 22:22:39,929 - INFO - Processing 1 initial records
+2026-02-17 22:22:39,929 - INFO - Filtering data for location: Cairns
+2026-02-17 22:22:39,929 - INFO - Filtered to 1 interesting records
+2026-02-17 22:22:39,929 - INFO - Transforming data records
+2026-02-17 22:22:39,935 - ERROR - CSV file at index 0 not found in /private/var/folders/zk/2_2l_1gx6613d2ks_ypk8jsw0000gn/T/pytest-of-dizzler/pytest-2/test_load_csv_data_empty0
+2026-02-17 22:26:09,292 - INFO - Processing 1 initial records
+2026-02-17 22:26:09,292 - INFO - Filtering data for location: Cairns
+2026-02-17 22:26:09,292 - INFO - Filtered to 1 interesting records
+2026-02-17 22:26:09,292 - INFO - Transforming data records
+2026-02-17 22:26:09,299 - ERROR - CSV file at index 0 not found in /private/var/folders/zk/2_2l_1gx6613d2ks_ypk8jsw0000gn/T/pytest-of-dizzler/pytest-3/test_load_csv_data_empty0
+2026-02-17 22:26:20,697 - INFO - Downloading dataset: sandhyapalaniappan/rainfall-prediction-dataset-cleaned-weatheraus
+2026-02-17 22:26:21,279 - INFO - Dataset location: /Users/dizzler/.cache/kagglehub/datasets/sandhyapalaniappan/rainfall-prediction-dataset-cleaned-weatheraus/versions/1
+2026-02-17 22:26:21,281 - INFO - Loading: weatherAUS_rainfall_prediction_dataset_cleaned.csv
+2026-02-17 22:26:21,861 - INFO - Processing 145460 initial records
+2026-02-17 22:26:21,861 - INFO - Filtering data for location: Cairns
+2026-02-17 22:26:21,881 - INFO - Filtered to 684 interesting records
+2026-02-17 22:26:21,881 - INFO - Transforming data records
+2026-02-17 22:26:21,885 - INFO - Generating visualization: weather_analysis.png
+2026-02-17 22:26:22,065 - INFO - Visualization saved to weather_analysis.png
