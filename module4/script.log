@@ -1,0 +1,12 @@
+2026-02-03 16:16:19,614 - INFO - Starting data processing pipeline
+2026-02-03 16:16:19,617 - INFO - Downloading dataset: sandhyapalaniappan/rainfall-prediction-dataset-cleaned-weatheraus
+2026-02-03 16:16:19,996 - INFO - Dataset downloaded to: /Users/dizzler/.cache/kagglehub/datasets/sandhyapalaniappan/rainfall-prediction-dataset-cleaned-weatheraus/versions/1
+2026-02-03 16:16:19,997 - INFO - Loading CSV file: weatherAUS_rainfall_prediction_dataset_cleaned.csv
+2026-02-03 16:16:20,130 - INFO - Data loaded successfully: 145460 rows, 23 columns
+2026-02-03 16:16:20,200 - INFO - Data profiling completed successfully
+2026-02-03 16:27:19,264 - INFO - Starting data processing pipeline
+2026-02-03 16:27:19,265 - INFO - Downloading dataset: sandhyapalaniappan/rainfall-prediction-dataset-cleaned-weatheraus
+2026-02-03 16:27:19,529 - INFO - Dataset downloaded to: /Users/dizzler/.cache/kagglehub/datasets/sandhyapalaniappan/rainfall-prediction-dataset-cleaned-weatheraus/versions/1
+2026-02-03 16:27:19,532 - INFO - Loading CSV file: weatherAUS_rainfall_prediction_dataset_cleaned.csv
+2026-02-03 16:27:19,662 - INFO - Data loaded successfully: 145460 rows, 23 columns
+2026-02-03 16:27:19,728 - INFO - Data profiling completed successfully
